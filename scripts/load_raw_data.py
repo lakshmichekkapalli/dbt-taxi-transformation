@@ -37,14 +37,28 @@ def main() -> None:
     with engine.begin() as conn:
         conn.execute(text("CREATE SCHEMA IF NOT EXISTS raw"))
 
-    df.to_sql(
-        "yellow_tripdata",
-        engine,
-        schema="raw",
-        if_exists="replace",
-        index=False,
-        chunksize=50_000,
-    )
+    # Create the table with the right columns/types but no rows, then bulk
+    # load via COPY — a few million rows through to_sql's row-by-row INSERT
+    # takes tens of minutes; COPY does the same load in seconds.
+    df.head(0).to_sql("yellow_tripdata", engine, schema="raw", if_exists="replace", index=False)
+
+    buffer = io.StringIO()
+    df.to_csv(buffer, index=False, header=False, na_rep="")
+    buffer.seek(0)
+
+    raw_conn = engine.raw_connection()
+    try:
+        with raw_conn.cursor() as cur:
+            # Raw TLC data has real NaNs (e.g. missing RatecodeID) — NULL ''
+            # tells COPY to treat empty fields as SQL NULL, not an invalid
+            # empty string for a numeric column.
+            cur.copy_expert(
+                "COPY raw.yellow_tripdata FROM STDIN WITH (FORMAT csv, NULL '')", buffer
+            )
+        raw_conn.commit()
+    finally:
+        raw_conn.close()
+
     print(f"Loaded raw.yellow_tripdata ({len(df):,} rows) into {db} on {host}:{port}")
 
 
