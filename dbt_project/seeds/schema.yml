@@ -5,8 +5,10 @@ seeds:
     description: >
       NYC TLC taxi zone reference data (LocationID -> Borough/Zone/service_zone).
       Static reference data, checked in as a CSV — the textbook dbt seed use case.
+      Uniqueness/not_null on the key are tested downstream on
+      stg_taxi_zone_lookup.location_id instead of here, since dbt seeds
+      preserve the CSV header's exact case ("LocationID"), and the generic
+      test macros emit that column name unquoted — which Postgres then folds
+      to lowercase and fails to match the actual quoted column.
     columns:
       - name: LocationID
-        tests:
-          - unique
-          - not_null

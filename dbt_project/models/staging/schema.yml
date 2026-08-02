@@ -7,9 +7,12 @@ models:
       matches the source table exactly.
     columns:
       - name: trip_id
-        description: Surrogate key hashed from vendor, timestamps, locations, distance, fare.
+        description: >
+          Surrogate key hashed from vendor, timestamps, locations, distance,
+          fare. Not tested for uniqueness here — staging is intentionally
+          undeduplicated; true trip-level uniqueness is enforced downstream
+          on int_trips_cleaned and fct_trips, after the dedup step.
         tests:
-          - unique
           - not_null
       - name: vendor_id
         tests:
@@ -21,8 +24,10 @@ models:
         tests:
           - not_null
       - name: passenger_count
-        tests:
-          - not_null
+        description: >
+          Not tested for not_null here — a meaningful share of raw TLC rows
+          (~2% in a typical month) have this missing. int_trips_cleaned
+          filters those out along with other invalid rows.
       - name: pickup_location_id
         tests:
           - not_null
