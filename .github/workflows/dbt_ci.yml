@@ -1,0 +1,48 @@
+name: dbt-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  dbt-build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: dbt_user
+          POSTGRES_PASSWORD: dbt_pass
+          POSTGRES_DB: warehouse
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd "pg_isready -U dbt_user"
+          --health-interval 5s
+          --health-retries 10
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5434
+      POSTGRES_DB: warehouse
+      POSTGRES_USER: dbt_user
+      POSTGRES_PASSWORD: dbt_pass
+      TAXI_YEAR: 2024
+      TAXI_MONTH: 1
+      DBT_PROFILES_DIR: ./dbt_project
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-dev.txt
+      - run: python scripts/load_raw_data.py
+      - run: cp dbt_project/profiles.yml.example dbt_project/profiles.yml
+      - working-directory: dbt_project
+        run: dbt deps
+      - working-directory: dbt_project
+        run: dbt seed
+      - working-directory: dbt_project
+        run: dbt run
+      - working-directory: dbt_project
+        run: dbt test

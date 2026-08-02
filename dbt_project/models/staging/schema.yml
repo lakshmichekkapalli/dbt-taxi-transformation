@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: stg_yellow_tripdata
+    description: >
+      One row per raw trip, renamed/typed but not yet filtered — row count
+      matches the source table exactly.
+    columns:
+      - name: trip_id
+        description: Surrogate key hashed from vendor, timestamps, locations, distance, fare.
+        tests:
+          - unique
+          - not_null
+      - name: vendor_id
+        tests:
+          - not_null
+      - name: pickup_datetime
+        tests:
+          - not_null
+      - name: dropoff_datetime
+        tests:
+          - not_null
+      - name: passenger_count
+        tests:
+          - not_null
+      - name: pickup_location_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_taxi_zone_lookup')
+                field: location_id
+      - name: dropoff_location_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_taxi_zone_lookup')
+                field: location_id
+
+  - name: stg_taxi_zone_lookup
+    description: NYC TLC taxi zone reference data (dbt seed) — one row per LocationID.
+    columns:
+      - name: location_id
+        tests:
+          - unique
+          - not_null
+      - name: borough
+        tests:
+          - not_null

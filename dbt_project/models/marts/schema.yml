@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: fct_trips
+    description: >
+      Grain: one row per validated taxi trip, enriched with pickup/dropoff
+      borough and zone names from the taxi zone lookup seed.
+    columns:
+      - name: trip_id
+        tests:
+          - unique
+          - not_null
+      - name: pickup_borough
+        tests:
+          - not_null
+      - name: fare_amount
+        tests:
+          - not_null
+
+  - name: mart_daily_summary
+    description: "Grain: one row per calendar day of pickups, revenue and ride-quality metrics."
+    columns:
+      - name: trip_date
+        tests:
+          - unique
+          - not_null
+      - name: total_trips
+        tests:
+          - not_null
+
+  - name: mart_pickup_zone_summary
+    description: "Grain: one row per pickup borough/zone combination, trip volume and revenue."
+    columns:
+      - name: total_trips
+        tests:
+          - not_null

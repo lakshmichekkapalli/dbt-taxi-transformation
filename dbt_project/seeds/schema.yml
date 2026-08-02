@@ -1,0 +1,12 @@
+version: 2
+
+seeds:
+  - name: taxi_zone_lookup
+    description: >
+      NYC TLC taxi zone reference data (LocationID -> Borough/Zone/service_zone).
+      Static reference data, checked in as a CSV — the textbook dbt seed use case.
+    columns:
+      - name: LocationID
+        tests:
+          - unique
+          - not_null

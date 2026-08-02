@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: int_trips_cleaned
+    description: >
+      Deduplicated, validated trips: nulls dropped, non-positive fare/distance
+      filtered, passenger count capped at a sane range, trip duration derived
+      and bounded to 1-180 minutes.
+    columns:
+      - name: trip_id
+        tests:
+          - unique
+          - not_null
+      - name: trip_duration_minutes
+        tests:
+          - not_null
+      - name: fare_amount
+        tests:
+          - not_null

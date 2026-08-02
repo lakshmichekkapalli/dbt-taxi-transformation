@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Landing zone loaded by scripts/load_raw_data.py — one month of NYC TLC
+      Yellow Taxi trip data, columns and types exactly as published upstream.
+    schema: raw
+    tables:
+      - name: yellow_tripdata
+        description: Raw NYC Yellow Taxi trips, one row per trip, unmodified from source.

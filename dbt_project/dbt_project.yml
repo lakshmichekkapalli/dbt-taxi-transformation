@@ -1,0 +1,30 @@
+name: taxi_transformation
+version: "1.0.0"
+config-version: 2
+
+profile: taxi_transformation
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - target
+  - dbt_packages
+
+models:
+  taxi_transformation:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  taxi_transformation:
+    +schema: seeds
