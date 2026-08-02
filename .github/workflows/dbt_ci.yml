@@ -29,7 +29,7 @@ jobs:
       POSTGRES_PASSWORD: dbt_pass
       TAXI_YEAR: 2024
       TAXI_MONTH: 1
-      DBT_PROFILES_DIR: ./dbt_project
+      DBT_PROFILES_DIR: "."
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
